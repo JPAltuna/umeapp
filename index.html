@@ -1,0 +1,235 @@
+bash
+
+cat > /mnt/user-data/outputs/index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Umepay</title>
+<meta name="theme-color" content="#2d5a3d"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;max-width:480px;margin:0 auto;min-height:100vh}
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+.topbar{background:#2d5a3d;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.topbar h1{color:#e8f5e2;font-size:17px;font-weight:500;flex:1}
+.logobar{background:#2d5a3d;padding:24px 16px 18px;display:flex;justify-content:space-between;align-items:center}
+.logobar h1{color:#e8f5e2;font-size:24px;font-weight:500;letter-spacing:1px}
+.content{flex:1;padding:14px;padding-bottom:70px}
+.card{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid #f0f0e8}
+.row:last-child{border-bottom:none}
+.btn-back{color:#9ecfb0;font-size:22px;cursor:pointer;background:none;border:none;padding:0}
+.nav{display:flex;background:#fff;border-top:0.5px solid #e0e0d8;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:10}
+.nt{flex:1;padding:9px 0;text-align:center;font-size:10px;color:#888;cursor:pointer;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nt i{font-size:20px}
+.nt.active{color:#2d5a3d}
+.slabel{font-size:11px;color:#aaa;font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 7px}
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:12px}
+.scard{background:#f0f0e8;border-radius:8px;padding:12px}
+.slbl{font-size:11px;color:#888}
+.sval{font-size:20px;font-weight:500;margin-top:2px}
+.bcard{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:13px 15px;margin-bottom:9px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.bname{font-size:15px;font-weight:500}
+.bmeta{font-size:12px;color:#888;margin-top:2px}
+.badge{font-size:11px;padding:3px 9px;border-radius:6px}
+.bok{background:#eaf3de;color:#3b6d11}
+.bpend{background:#faeeda;color:#854f0b}
+.lname{font-size:14px}
+.lown{font-size:12px;color:#888}
+.btn-p{background:#2d5a3d;color:#e8f5e2;border:none;border-radius:8px;padding:12px 18px;font-size:14px;font-weight:500;width:100%;cursor:pointer;margin-bottom:9px}
+.btn-s{background:#fff;color:#2d5a3d;border:1.5px solid #2d5a3d;border-radius:8px;padding:12px 18px;font-size:14px;font-weight:500;width:100%;cursor:pointer}
+.inp{width:100%;padding:10px 13px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:11px;background:#fff}
+.prog-bar{background:#e8e8e0;border-radius:20px;height:10px;margin:8px 0 4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:20px;background:#2d5a3d}
+.pcard{background:#fff;border:0.5px solid #e0e0d8;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.ptag{font-size:11px;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px;margin-right:4px}
+.tag-activo{background:#eaf3de;color:#3b6d11}
+.tag-colecta{background:#e6f1fb;color:#185fa5}
+#install-btn{display:none;position:fixed;top:12px;right:12px;background:#2d5a3d;color:#e8f5e2;border:none;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;z-index:100}
+</style>
+</head>
+<body>
+<button id="install-btn" onclick="installApp()">+ Instalar app</button>
+
+<div id="s-login" class="screen active">
+  <div class="logobar"><h1>Umepay</h1><span style="color:#9ecfb0;font-size:12px">eco aldea</span></div>
+  <div class="content" style="display:flex;flex-direction:column;justify-content:center;padding-top:40px">
+    <div class="slabel" style="margin-top:0">Acceso vecinos</div>
+    <input class="inp" type="text" placeholder="Usuario"/>
+    <input class="inp" type="password" placeholder="Contraseña"/>
+    <button class="btn-p" onclick="login('vecino')">Ingresar</button>
+    <div style="text-align:center;font-size:12px;color:#aaa;margin:8px 0 12px">o</div>
+    <button class="btn-s" onclick="login('visitante')">Ver como visitante</button>
+  </div>
+</div>
+
+<div id="s-home" class="screen">
+  <div class="logobar">
+    <div><h1>Umepay</h1><p id="rlabel" style="color:#9ecfb0;font-size:12px;margin-top:2px"></p></div>
+    <button onclick="go('s-login')" style="background:none;border:none;color:#9ecfb0;font-size:12px;cursor:pointer">Salir</button>
+  </div>
+  <div class="content">
+    <div class="sgrid">
+      <div class="scard"><div class="slbl">Barrios</div><div class="sval">7</div></div>
+      <div class="scard"><div class="slbl">Lotes totales</div><div class="sval">136</div></div>
+      <div class="scard"><div class="slbl">Registrados</div><div class="sval">~30</div></div>
+      <div class="scard"><div class="slbl">Proyectos</div><div class="sval">2</div></div>
+    </div>
+    <div class="slabel">Módulos</div>
+    <div class="bcard" onclick="go('s-barrios')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <i class="ti ti-map-2" style="font-size:22px;color:#2d5a3d"></i>
+        <div><div style="font-size:14px;font-weight:500">Barrios y lotes</div><div style="font-size:12px;color:#888">Aldea, Castaños, Nogales...</div></div>
+      </div>
+      <i class="ti ti-chevron-right" style="color:#ccc"></i>
+    </div>
+    <div class="bcard" onclick="go('s-expensas')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <i class="ti ti-receipt" style="font-size:22px;color:#2d5a3d"></i>
+        <div><div style="font-size:14px;font-weight:500">Expensas</div><div style="font-size:12px;color:#888">Estado mensual por barrio</div></div>
+      </div>
+      <i class="ti ti-chevron-right" style="color:#ccc"></i>
+    </div>
+    <div class="bcard" onclick="go('s-proyectos')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <i class="ti ti-users-group" style="font-size:22px;color:#2d5a3d"></i>
+        <div><div style="font-size:14px;font-weight:500">Proyectos comunitarios</div><div style="font-size:12px;color:#888">Exóticas · Gimnasio</div></div>
+      </div>
+      <i class="ti ti-chevron-right" style="color:#ccc"></i>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nt active" onclick="nav('s-home',this)"><i class="ti ti-home"></i>Inicio</button>
+    <button class="nt" onclick="nav('s-barrios',this)"><i class="ti ti-map-2"></i>Barrios</button>
+    <button class="nt" onclick="nav('s-expensas',this)"><i class="ti ti-receipt"></i>Expensas</button>
+    <button class="nt" onclick="nav('s-proyectos',this)"><i class="ti ti-users-group"></i>Proyectos</button>
+  </nav>
+</div>
+
+<div id="s-barrios" class="screen">
+  <div class="topbar"><button class="btn-back" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button><h1>Barrios y lotes</h1></div>
+  <div class="content" id="lista-barrios"></div>
+  <nav class="nav">
+    <button class="nt" onclick="nav('s-home',this)"><i class="ti ti-home"></i>Inicio</button>
+    <button class="nt active" onclick="nav('s-barrios',this)"><i class="ti ti-map-2"></i>Barrios</button>
+    <button class="nt" onclick="nav('s-expensas',this)"><i class="ti ti-receipt"></i>Expensas</button>
+    <button class="nt" onclick="nav('s-proyectos',this)"><i class="ti ti-users-group"></i>Proyectos</button>
+  </nav>
+</div>
+
+<div id="s-lotes" class="screen">
+  <div class="topbar"><button class="btn-back" onclick="go('s-barrios')"><i class="ti ti-arrow-left"></i></button><h1 id="lotes-title">Lotes</h1></div>
+  <div class="content" id="lista-lotes"></div>
+  <nav class="nav">
+    <button class="nt" onclick="nav('s-home',this)"><i class="ti ti-home"></i>Inicio</button>
+    <button class="nt active" onclick="nav('s-barrios',this)"><i class="ti ti-map-2"></i>Barrios</button>
+    <button class="nt" onclick="nav('s-expensas',this)"><i class="ti ti-receipt"></i>Expensas</button>
+    <button class="nt" onclick="nav('s-proyectos',this)"><i class="ti ti-users-group"></i>Proyectos</button>
+  </nav>
+</div>
+
+<div id="s-expensas" class="screen">
+  <div class="topbar"><button class="btn-back" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button><h1>Expensas</h1></div>
+  <div class="content">
+    <div class="slabel" style="margin-top:0">Por barrio</div>
+    <div class="card" id="exp-lista"></div>
+    <p style="font-size:12px;color:#aaa;margin-top:8px">Los estados se cargarán desde Google Sheets cuando agregues la hoja "Expensas".</p>
+  </div>
+  <nav class="nav">
+    <button class="nt" onclick="nav('s-home',this)"><i class="ti ti-home"></i>Inicio</button>
+    <button class="nt" onclick="nav('s-barrios',this)"><i class="ti ti-map-2"></i>Barrios</button>
+    <button class="nt active" onclick="nav('s-expensas',this)"><i class="ti ti-receipt"></i>Expensas</button>
+    <button class="nt" onclick="nav('s-proyectos',this)"><i class="ti ti-users-group"></i>Proyectos</button>
+  </nav>
+</div>
+
+<div id="s-proyectos" class="screen">
+  <div class="topbar"><button class="btn-back" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button><h1>Proyectos comunitarios</h1></div>
+  <div class="content">
+    <div class="pcard">
+      <span class="ptag tag-activo">En curso</span>
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Control de especies exóticas</div>
+      <div style="font-size:13px;color:#888;margin-bottom:10px">Relevamiento y extracción de plantas exóticas invasoras. Jornadas colectivas periódicas.</div>
+      <div style="font-size:12px;color:#aaa">Próxima fecha: a confirmar</div>
+    </div>
+    <div class="pcard">
+      <span class="ptag tag-activo">En curso</span><span class="ptag tag-colecta">Colecta activa</span>
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Gimnasio comunitario</div>
+      <div style="font-size:13px;color:#888;margin-bottom:10px">Construcción del espacio de actividad física compartido.</div>
+      <div style="font-size:12px;color:#555;margin-bottom:2px">Recaudado: <strong>$180.000</strong> de <strong>$500.000</strong></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:36%"></div></div>
+      <div style="font-size:11px;color:#aaa;margin-top:3px">36% alcanzado</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nt" onclick="nav('s-home',this)"><i class="ti ti-home"></i>Inicio</button>
+    <button class="nt" onclick="nav('s-barrios',this)"><i class="ti ti-map-2"></i>Barrios</button>
+    <button class="nt" onclick="nav('s-expensas',this)"><i class="ti ti-receipt"></i>Expensas</button>
+    <button class="nt active" onclick="nav('s-proyectos',this)"><i class="ti ti-users-group"></i>Proyectos</button>
+  </nav>
+</div>
+
+<script>
+const DATA={
+  "Aldea":{lotes:40,duenos:{"1":"German Di Filippo / Carolina Jagoe","2":"Damo / Natalia Petrizi","3":"Laura Petrolo","4":"Lucas","5":"Matias Echeguren","6":"Roberto Galleli / Luciana Carbo"}},
+  "Castaños":{lotes:7,duenos:{"1":"Cecilia Sonzini","2":"Mara Ticach","3":"Leo","5":"Herni","6":"Fran Barlett","7":"Ger DiFilippo / Mati Eche"}},
+  "Nogales Bajos":{lotes:16,duenos:{"1":"Juan Manuel Coto","2":"Francisca Silv / Herni","3":"Rosario Bertran","4":"Graciela"}},
+  "Nogales Altos":{lotes:45,duenos:{"1":"Cecilia Hasse / Gustavo Tulic","2":"Rocio Peralta / Juan Pablo Moretto","3":"Julieta Galleli","4":"Valeria Baigorri"}},
+  "Acacias":{lotes:10,duenos:{"1":"Candela Cws","2":"Nacho Licari","3":"Amortina Espeche","4":"Marcelo","5":"Daniela Dewey"}},
+  "Espinillos":{lotes:11,duenos:{"1":"Celi Silveyra","2":"Ana / Oscar","3":"Irina Svaglia / Flor"}},
+  "7 Lomas":{lotes:7,duenos:{"1":"Juan Manuel Coto","2":"German DiFilippo"}}
+};
+
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function nav(id,btn){go(id);document.querySelectorAll('.nt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function login(role){document.getElementById('rlabel').textContent=role==='vecino'?'Vecino':'Visitante';go('s-home');}
+
+function renderBarrios(){
+  let h='<div class="slabel" style="margin-top:0">7 barrios</div>';
+  Object.entries(DATA).forEach(([n,d])=>{
+    const reg=Object.keys(d.duenos).length;
+    h+=`<div class="bcard" onclick="verLotes('${n}')"><div><div class="bname">${n}</div><div class="bmeta">${d.lotes} lotes · ${reg} registrados</div></div><i class="ti ti-chevron-right" style="color:#ccc"></i></div>`;
+  });
+  document.getElementById('lista-barrios').innerHTML=h;
+}
+
+function verLotes(barrio){
+  const d=DATA[barrio];
+  document.getElementById('lotes-title').textContent=barrio;
+  let h=`<div class="slabel" style="margin-top:0">${d.lotes} lotes</div><div class="card">`;
+  for(let i=1;i<=d.lotes;i++){
+    const due=d.duenos[String(i)]||'—';
+    h+=`<div class="row"><div><div class="lname">Lote ${i}</div><div class="lown">${due}</div></div></div>`;
+  }
+  h+='</div>';
+  document.getElementById('lista-lotes').innerHTML=h;
+  go('s-lotes');
+}
+
+function renderExpensas(){
+  let h='';
+  Object.entries(DATA).forEach(([n,d])=>{
+    h+=`<div class="row"><div><div class="lname">${n}</div><div class="lown">${d.lotes} lotes</div></div><span class="badge bpend">Sin datos</span></div>`;
+  });
+  document.getElementById('exp-lista').innerHTML=h;
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-btn').style.display='block';});
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;document.getElementById('install-btn').style.display='none';}}
+
+renderBarrios();
+renderExpensas();
+</script>
+</body>
+</html>
+HTMLEOF
+echo "OK"
+Output
+
+OK
