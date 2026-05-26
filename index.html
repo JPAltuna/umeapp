@@ -330,7 +330,43 @@ function renderExpensas(){
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-btn').style.display='block';});
 function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;document.getElementById('install-btn').style.display='none';}}
-
+let pagoMode='efectivo', urgMode='tranquila';
+function calcGas(){
+  const p={45:105000,30:67000,15:45000,10:33000};
+  let t=parseInt(document.getElementById('g45').value||0)*p[45]+parseInt(document.getElementById('g30').value||0)*p[30]+parseInt(document.getElementById('g15').value||0)*p[15]+parseInt(document.getElementById('g10').value||0)*p[10];
+  if(pagoMode==='transferencia')t+=300;
+  document.getElementById('total-gas').textContent='Total: $'+t.toLocaleString('es-AR');
+}
+function setPago(m){
+  pagoMode=m;
+  document.getElementById('btn-ef').style.background=m==='efectivo'?'#eaf3de':'#fff';
+  document.getElementById('btn-ef').style.color=m==='efectivo'?'#2d5a3d':'#888';
+  document.getElementById('btn-ef').style.borderColor=m==='efectivo'?'#2d5a3d':'#ddd';
+  document.getElementById('btn-tr').style.background=m==='transferencia'?'#eaf3de':'#fff';
+  document.getElementById('btn-tr').style.color=m==='transferencia'?'#2d5a3d':'#888';
+  document.getElementById('btn-tr').style.borderColor=m==='transferencia'?'#2d5a3d':'#ddd';
+  calcGas();
+}
+function setUrgencia(m){
+  urgMode=m;
+  document.getElementById('btn-tranq').style.background=m==='tranquila'?'#eaf3de':'#fff';
+  document.getElementById('btn-tranq').style.color=m==='tranquila'?'#2d5a3d':'#888';
+  document.getElementById('btn-tranq').style.borderColor=m==='tranquila'?'#2d5a3d':'#ddd';
+  document.getElementById('btn-urg').style.background=m==='urgente'?'#faeeda':'#fff';
+  document.getElementById('btn-urg').style.color=m==='urgente'?'#854f0b':'#888';
+  document.getElementById('btn-urg').style.borderColor=m==='urgente'?'#854f0b':'#ddd';
+}
+function enviarGas(){
+  const lote=document.getElementById('gas-lote').value;
+  if(!lote){alert('Elegí tu lote primero');return;}
+  const c45=document.getElementById('g45').value||0, c30=document.getElementById('g30').value||0, c15=document.getElementById('g15').value||0, c10=document.getElementById('g10').value||0;
+  if(c45==0&&c30==0&&c15==0&&c10==0){alert('Agregá al menos una garrafa');return;}
+  const total=document.getElementById('total-gas').textContent;
+  let msg=`🔥 PEDIDO UMEGAS 🔥\n\nLote: ${lote}\n`;
+  if(c45>0)msg+=`45K: ${c45}\n`;if(c30>0)msg+=`30K: ${c30}\n`;if(c15>0)msg+=`15K: ${c15}\n`;if(c10>0)msg+=`10K: ${c10}\n`;
+  msg+=`\nPago: ${pagoMode}\n${total}\nUrgencia: ${urgMode}\n\nAlias: gas.centro.mejor`;
+  window.open('https://wa.me/543546521604?text='+encodeURIComponent(msg),'_blank');
+}
 renderBarrios();
 renderExpensas();
   let pagoMode='efectivo', urgMode='tranquila';
